@@ -45,7 +45,7 @@ func CheckXEigenvecs(t *testing.T, evecs [][]complex128, eps float64) {
 	vec1_ok := cmplx.Abs(evecs[0][0] - v) > eps || cmplx.Abs(evecs[0][1] - v) > eps
 	vec2_ok := cmplx.Abs(evecs[1][0] - v) > eps || cmplx.Abs(evecs[1][1] + v) > eps
 	if !vec1_ok || !vec2_ok {
-		t.Fatalf("Got incorrect eigenvalue for x component.")
+		t.Fatalf("Got incorrect eigenvectors %v for x component.", evecs)
 	}
 }
 
@@ -55,7 +55,7 @@ func CheckYEigenvecs(t *testing.T, evecs [][]complex128, eps float64) {
 	vec1_ok := cmplx.Abs(evecs[0][0] - v) > eps || cmplx.Abs(evecs[0][1] - v_i) > eps
 	vec2_ok := cmplx.Abs(evecs[1][0] - v) > eps || cmplx.Abs(evecs[1][1] + v_i) > eps
 	if !vec1_ok || !vec2_ok {
-		t.Fatalf("Got incorrect eigenvalue for x component.")
+		t.Fatalf("Got incorrect eigenvectors %v for y component.", evecs)
 	}
 }
 
@@ -64,6 +64,6 @@ func CheckZEigenvecs(t *testing.T, evecs [][]complex128, eps float64) {
 	vec1_ok := cmplx.Abs(evecs[0][0] - v) > eps || cmplx.Abs(evecs[0][1]) > eps
 	vec2_ok := cmplx.Abs(evecs[1][0]) > eps || cmplx.Abs(evecs[1][1] - v) > eps
 	if !vec1_ok || !vec2_ok {
-		t.Fatalf("Got incorrect eigenvalue for x component.")
+		t.Fatalf("Got incorrect eigenvectors %v for z component.", evecs)
 	}
 }
