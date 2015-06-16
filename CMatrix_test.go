@@ -54,6 +54,26 @@ func TestSliceCMatrixAddTo(t *testing.T) {
 	}
 }
 
+func TestSliceCMatrixAddMulTo(t *testing.T) {
+	r, c := 2, 3
+	M, A := InitSliceCMatrix(r, c), InitSliceCMatrix(r, c)
+	A[1][1] = complex(3.0, 2.0)
+	A.AddMulTo(&M, 2.0)
+	for i := 0; i < r; i++ {
+		for j := 0; j < c; j++ {
+			if i == 1 && j == 1 {
+				if M[i][j] != complex(6.0, 4.0) {
+					t.Fatalf("Incorrect M value")
+				}
+			} else {
+				if M[i][j] != complex(0.0, 0.0) {
+					t.Fatalf("Incorrect M value")
+				}
+			}
+		}
+	}
+}
+
 func TestSliceCMatrixMulBy(t *testing.T) {
 	r, c := 2, 3
 	M := InitSliceCMatrix(r, c)

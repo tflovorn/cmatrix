@@ -56,6 +56,7 @@ func (M SliceCMatrix) String() string {
 	return buffer.String()
 }
 
+// Add M to A in-place (i.e. A --> A + M).
 func (M SliceCMatrix) AddTo(A *SliceCMatrix) {
 	mr, mc := M.Dims()
 	ar, ac := A.Dims()
@@ -69,6 +70,21 @@ func (M SliceCMatrix) AddTo(A *SliceCMatrix) {
 	}
 }
 
+// Add M*val to A in-place (i.e. A --> A + val*M).
+func (M SliceCMatrix) AddMulTo(A *SliceCMatrix, val complex128) {
+	mr, mc := M.Dims()
+	ar, ac := A.Dims()
+	if mr != ar || mc != ac {
+		panic("Adding incompatible matrices")
+	}
+	for i := 0; i < mr; i++ {
+		for j := 0; j < mc; j++ {
+			(*A)[i][j] += val * M[i][j]
+		}
+	}
+}
+
+// Multiply M by the given scalar in-place (i.e. M --> val*M).
 func (M *SliceCMatrix) MulBy(val complex128) {
 	mr, mc := M.Dims()
 	for i := 0; i < mr; i++ {
