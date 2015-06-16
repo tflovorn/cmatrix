@@ -55,3 +55,25 @@ func (M SliceCMatrix) String() string {
 	}
 	return buffer.String()
 }
+
+func (M SliceCMatrix) AddTo(A *SliceCMatrix) {
+	mr, mc := M.Dims()
+	ar, ac := A.Dims()
+	if mr != ar || mc != ac {
+		panic("Adding incompatible matrices")
+	}
+	for i := 0; i < mr; i++ {
+		for j := 0; j < mc; j++ {
+			(*A)[i][j] += M[i][j]
+		}
+	}
+}
+
+func (M *SliceCMatrix) MulBy(val complex128) {
+	mr, mc := M.Dims()
+	for i := 0; i < mr; i++ {
+		for j := 0; j < mc; j++ {
+			(*M)[i][j] *= val
+		}
+	}
+}
