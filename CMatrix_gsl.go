@@ -10,6 +10,78 @@ package cmatrix
 */
 import "C"
 
+type CMatrixGSL struct {
+	M *C.gsl_matrix_complex
+}
+
+type VectorGSL struct {
+	V *C.gsl_vector
+}
+
+type HermWorkGSL struct {
+	W *C.gsl_eigen_hermv_workspace
+}
+
+func NewCMatrixGSL(r, c int) *CMatrixGSL {
+	M := C.gsl_matrix_complex_calloc(C.size_t(r), C.size_t(c))
+	return &CMatrixGSL{M}
+}
+
+func (M *CMatrixGSL) Dims() (int, int) {
+	return int(M.M.size1), int(M.M.size2)
+}
+
+func (M *CMatrixGSL) At(r, c int) complex128 {
+	valgsl := C.gsl_matrix_complex_get(M.M, C.size_t(r), C.size_t(c))
+	val_re, val_im := float64(valgsl.dat[0]), float64(valgsl.dat[1])
+	val := complex(val_re, val_im)
+	return val
+}
+
+func (M *CMatrixGSL) Set(r, c int, val complex128) {
+	val_re, val_im := real(val), imag(val)
+	// set value at (i, j)
+	valgsl := C.gsl_complex_rect(C.double(val_re), C.double(val_im))
+
+	C.gsl_matrix_complex_set(M.M, C.size_t(r), C.size_t(c), valgsl)
+}
+
+func (M *CMatrixGSL) String() string {
+	return "TODO"
+}
+
+func (M *CMatrixGSL) Destroy() {
+	C.gsl_matrix_complex_free(M.M)
+}
+
+func (V *VectorGSL) At(r int) float64 {
+	valgsl := C.gsl_vector_get(V.V, C.size_t(r))
+	return float64(valgsl)
+}
+
+// Allocate the eigensystem's workspace and its return values.
+// Returns the workspace, eigenvalue vector, and eigenvector matrix.
+func HermEigensystemSetup(M *CMatrixGSL) (*HermWorkGSL, *VectorGSL, *CMatrixGSL) {
+	// Allocate space for eigendecomposition (needed for gsl_eigen_hermv call).
+	r, _ := M.Dims()
+	rC := C.size_t(r)
+	work := C.gsl_eigen_hermv_alloc(rC)
+	evalsgsl := C.gsl_vector_calloc(rC)
+	evecsgsl := C.gsl_matrix_complex_calloc(rC, rC)
+
+	return &HermWorkGSL{work}, &VectorGSL{evalsgsl}, &CMatrixGSL{evecsgsl}
+}
+
+func HermEigensystem(M *CMatrixGSL, work *HermWorkGSL, evals *VectorGSL, evecs *CMatrixGSL) {
+	C.gsl_eigen_hermv(M.M, evals.V, evecs.M, work.W)
+}
+
+func HermEigensystemCleanup(work *HermWorkGSL, evals *VectorGSL, evecs *CMatrixGSL) {
+	C.gsl_eigen_hermv_free(work.W)
+	C.gsl_vector_free(evals.V)
+	C.gsl_matrix_complex_free(evecs.M)
+}
+
 // Perform eigendecomposition of the Hermitian matrix M.
 // Returns a list of eigenvalues and a list of eigenvectors.
 // Eigenvectors are ordered corresponding to the eigenvalues.
